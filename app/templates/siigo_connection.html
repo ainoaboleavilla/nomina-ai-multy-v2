@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Siigo · Nómina AI{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div><span class="eyebrow">INTEGRACIÓN</span><h1>Siigo</h1><p>La API usa credenciales desde <code>.env</code> y las cuentas contables se leen del mapa real de nómina por grupo.</p></div>
+  {% if siigo_status.enabled and siigo_status.configured %}<span class="badge edit">● CONFIGURADO</span>{% else %}<span class="badge edit">○ PENDIENTE</span>{% endif %}
+</div>
+<div class="reviewgrid">
+  <section class="panel">
+    <h2>Estado de conexión</h2>
+    <p><b>Integración:</b> {{ 'Habilitada' if siigo_status.enabled else 'Deshabilitada' }}</p>
+    <p><b>Credenciales:</b> {{ 'Configuradas' if siigo_status.configured else 'Faltan variables en .env' }}</p>
+    <p><b>Usuario:</b> {{ siigo_status.username_masked or '—' }}</p>
+    <p><b>Partner-Id:</b> {{ 'Configurado' if siigo_status.partner_id_configured else 'No configurado' }}</p>
+    <p><b>API:</b> {{ siigo_status.base_url }}</p>
+    <p><b>Comprobante de causación:</b> CC-{{ siigo_status.payroll_journal_document_code }}</p>
+    <p><b>Mapa contable:</b> {{ 'LISTO' if siigo_status.payroll_accounting_configured else 'PENDIENTE' }}</p>
+    <p><b>Carga real:</b> {{ 'HABILITADA' if siigo_status.live_payroll_journal_enabled else 'BLOQUEADA POR SEGURIDAD' }}</p>
+    <form method="post"><button class="btn yellow" type="submit">Probar API y resolver CC-992</button></form>
+  </section>
+  <section class="panel">
+    <h2>Parametrización real</h2>
+    <p><b>Empresa:</b> {{ siigo_status.accounting_mapping.company or '—' }}</p>
+    <p><b>Grupos:</b> {{ (siigo_status.accounting_mapping.groups or [])|join(', ') }}</p>
+    <p><b>Nómina por pagar:</b> {{ siigo_status.accounting_mapping.payroll_payable_account or '—' }}</p>
+    <p><b>Archivo:</b> <code>{{ siigo_status.accounting_mapping.path or '—' }}</code></p>
+    <a class="btn dark" href="{{ url_for('main.integracion_siigo_nomina') }}">Ir a Integración de nómina</a>
+  </section>
+</div>
+<div class="panel" style="margin-top:18px">
+  <h2>Configuración principal</h2>
+  <pre style="white-space:pre-wrap;background:#111;color:#ffd400;padding:16px;border-radius:12px">SIIGO_LIVE_PAYROLL_JOURNAL_ENABLED=false
+SIIGO_PAYROLL_JOURNAL_DOCUMENT_CODE=992
+SIIGO_PROVISIONS_DOCUMENT_CODE=993
+SIIGO_PAYROLL_PAYOUT_DOCUMENT_CODE=997
+SIIGO_PAYROLL_ACCOUNTING_MAPPING=app/config/payroll_accounting_multy.json</pre>
+  <p style="font-size:12px;color:#666">Las cuentas SIIGO_ACCOUNT_* antiguas ya no se usan. El código visible CC-992 se resuelve contra la API para obtener el ID interno antes de enviar.</p>
+</div>
+{% endblock %}

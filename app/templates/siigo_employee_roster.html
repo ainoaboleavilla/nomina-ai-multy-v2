@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Sincronizar empleados · Nómina AI{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <span class="eyebrow">SIIGO → MAESTRO DE EMPLEADOS</span>
+    <h1>Seleccionar trabajadores desde Siigo</h1>
+    <p>Siigo API pública expone terceros persona, pero no una bandera pública que diga “empleado de nómina”. Selecciona aquí cuáles terceros corresponden a trabajadores. Esta selección queda guardada y luego todos ellos entran en cada nómina, tengan o no novedades.</p>
+  </div>
+  <span class="badge edit">CONFIRMACIÓN HUMANA</span>
+</div>
+
+<div class="panel" style="margin-bottom:16px">
+  <b>Regla del sistema</b>
+  <p>Las novedades ya no definen quién entra a la nómina. El maestro de empleados define la planta activa; el archivo/formulario de novedades solo modifica a quienes tuvieron cambios en el período.</p>
+</div>
+
+<form method="post">
+  <div style="display:flex;gap:10px;margin-bottom:14px">
+    <button class="btn ghost" type="button" onclick="toggleAll(true)">Marcar todos</button>
+    <button class="btn ghost" type="button" onclick="toggleAll(false)">Desmarcar todos</button>
+    <button class="btn yellow" type="submit">Importar seleccionados como empleados</button>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Documento</th><th>Nombre en Siigo</th><th>Activo</th><th>Ya está en nómina</th><th>Salario base local</th></tr></thead>
+      <tbody>
+      {% for c in candidates %}
+        <tr>
+          <td><input class="employeeCheck" type="checkbox" name="employee_documents" value="{{c.document}}" {% if c.already_employee %}checked{% endif %}></td>
+          <td>{{c.document}}</td>
+          <td>{% if c.name is iterable and c.name is not string %}{{ c.name|join(' ') }}{% else %}{{c.name or c.commercial_name}}{% endif %}</td>
+          <td>{{'Sí' if c.active else 'No'}}</td>
+          <td>{{'Sí' if c.already_employee else 'No'}}</td>
+          <td>{{c.local_salary_base or '-'}}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">No se encontraron terceros persona activos en Siigo.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</form>
+<script>
+function toggleAll(v){document.querySelectorAll('.employeeCheck').forEach(x=>x.checked=v)}
+</script>
+{% endblock %}

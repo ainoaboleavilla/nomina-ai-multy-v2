@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Variables y secretos
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials.json
+service-account*.json
+
+# IDE / sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs / BD local
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Datos de nómina y archivos sensibles
+# Los Excel reales se mantienen localmente y NO se versionan.
+data/*.xlsx
+data/*.xls
+data/*.csv
+data/output/*
+!data/output/.gitkeep
+data/audit/
+
+# Plantillas Excel reales: pueden contener cédulas/cuentas bancarias.
+templates_excel/*.xlsx
+
+# Archivos comprimidos
+*.zip
+
+# Histórico de nómina para pruebas (datos sensibles)
+data/historical/*
+!data/historical/.gitkeep
+data/historical_validation_report.json
+
+# Paquetes de nómina electrónica generados
+data/output/*_04_NOMINA_ELECTRONICA.json
+
+# Carpetas finales de entrega generadas
+/data/entregas/
+data/siigo/
+/data/clients/clients.json
+/data/siigo/payroll_journals/
+/data/employees.json
+/data/payroll_registry.json
+/data/novelties_draft.json
+
+# Datos bancarios locales (sensibles)
+data/bank_master.json

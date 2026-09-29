@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block title %}Validación histórica · Nómina AI{% endblock %}
+{% block content %}
+<div class="panel"><h1>Validación histórica del motor Python</h1>
+<p>Sube nóminas anteriores. El sistema toma los datos fuente, recalcula con <b>payroll_engine.py</b> y compara contra los valores históricos guardados en Excel.</p>
+<form method="post" enctype="multipart/form-data"><input type="file" name="archivos" accept=".xlsx,.xlsm" multiple required><button class="btn" type="submit">Ejecutar testeo histórico</button></form></div>
+{% if report %}
+<div class="panel"><h2>Resumen</h2>
+<p><b>Archivos encontrados:</b> {{report.files_found}} · <b>Validados:</b> {{report.files_validated}} · <b>Con error:</b> {{report.files_with_error}}</p>
+<p><b>Campos comparados:</b> {{report.total_compared}} · <b>Coinciden:</b> {{report.total_matched}} · <b>Diferencias:</b> {{report.total_differences}} · <b>Paridad:</b> {{report.global_match_rate}}%</p></div>
+{% for item in report.reports %}
+<div class="panel"><h3>{{item.file}}</h3><p>Hoja: {{item.sheet}} · Empleados: {{item.employees}} · Comparados: {{item.compared}} · Diferencias: {{item.differences}} · Paridad: {{item.match_rate}}%</p>
+{% if item.details %}<div style="overflow:auto"><table><thead><tr><th>Fila</th><th>Empleado</th><th>Campo</th><th>Histórico</th><th>Python</th><th>Diferencia</th></tr></thead><tbody>
+{% for d in item.details %}<tr><td>{{d.row}}</td><td>{{d.employee}} ({{d.cedula}})</td><td>{{d.field}}</td><td>{{d.historical}}</td><td>{{d.python}}</td><td>{{d.delta}}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}</div>
+{% endfor %}
+{% if report.errors %}<div class="panel"><h3>Archivos que no pudieron validarse</h3>{% for e in report.errors %}<p><b>{{e.file}}</b>: {{e.error}}</p>{% endfor %}</div>{% endif %}
+{% endif %}
+{% endblock %}

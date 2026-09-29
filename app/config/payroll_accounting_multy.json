@@ -1,0 +1,95 @@
+{
+  "company": "GRUPO MULTY SAS",
+  "source": "Parametrizacion observada en Siigo Nube - Configuracion de nomina",
+  "verified_on": "2026-09-12",
+  "document_codes": {
+    "payroll_accrual": "992",
+    "provisions_social_security": "993",
+    "contract_settlement": "994",
+    "severance_settlement": "996",
+    "payroll_payout": "997"
+  },
+  "payroll_payable_account": "25050501",
+  "groups": {
+    "Administración": {
+      "salary": "51050601",
+      "transport": "51052701",
+      "overtime_and_surcharges": "51051501",
+      "incapacity": "51052401",
+      "bonus": "51054801",
+      "commission": null,
+      "loan": "13651501",
+      "withholding": "23650501",
+      "afc": "23705001",
+      "garnishment": "23702501"
+    },
+    "Ventas": {
+      "salary": "52050601",
+      "transport": "52052701",
+      "overtime_and_surcharges": "52051501",
+      "incapacity": "52052401",
+      "bonus": "52054801",
+      "commission": "52950501",
+      "loan": "13651501",
+      "withholding": "23650501",
+      "afc": "23705001",
+      "garnishment": "23702501"
+    },
+    "Producción": {
+      "salary": "72050601",
+      "transport": "72052701",
+      "overtime_and_surcharges": "72051501",
+      "incapacity": "72052401",
+      "bonus": "72054801",
+      "commission": null,
+      "loan": "13651501",
+      "withholding": "23650501",
+      "afc": "23705001",
+      "garnishment": "23702501"
+    }
+  },
+  "funds": {
+    "health": {
+      "expense": "51056901",
+      "liability": "23700501"
+    },
+    "pension": {
+      "expense": "51057001",
+      "liability": "23803001"
+    },
+    "compensation_fund": {
+      "expense": "51057201",
+      "liability": "23701001"
+    },
+    "sena": {
+      "expense": "51057801",
+      "liability": "23701002"
+    },
+    "icbf": {
+      "expense": "51057501",
+      "liability": "23701003"
+    },
+    "arl": {
+      "expense": "51056801",
+      "default_liability": "23700601",
+      "liability_by_provider": {
+        "SEGUROS DE VIDA SURAMERICANA": "23701501"
+      }
+    },
+    "severance_fund": {
+      "liability": "2510100102"
+    }
+  },
+  "provisions": {
+    "severance": {"expense": "51053001", "liability": "2510100102"},
+    "vacation": {"expense": "51053901", "liability": "2510100302"},
+    "service_bonus": {"expense": "51053601", "liability": "2510100402"},
+    "severance_interest": {"expense": "51053301", "liability": "2510100202"}
+  },
+  "notes": [
+    "Las cuentas de conceptos fueron verificadas por grupo para Administracion, Ventas y Produccion.",
+    "Las cuentas de fondos/provisiones observadas corresponden al grupo Administracion. No se extrapolan automaticamente a otros grupos.",
+    "Comisiones no fue visible en las capturas de Administracion ni Produccion; si existe un valor, el sistema bloquea la contabilizacion hasta parametrizarla.",
+    "La cuenta de prestamos 13651501 aparece configurada en Siigo con descripcion Educacion; conservar solo si Contabilidad confirma que es la politica vigente."
+  ]
+}

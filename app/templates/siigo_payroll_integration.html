@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Integración Nómina · Siigo{% endblock %}
+{% block content %}
+<div class="pagehead"><div><span class="eyebrow">SIIGO · CONTABILIDAD</span><h1>Cargar nómina aprobada a Siigo</h1><p>Convierte la nómina aprobada en un comprobante contable y lo crea directamente en Siigo Nube. No usa facturación ni realiza transmisión mensual de nómina electrónica.</p></div></div>
+
+<div class="panel">
+  <h2>Estado</h2>
+  <p><b>Siigo:</b> {% if siigo_status.configured %}🟢 Credenciales configuradas{% else %}🟡 Falta configurar .env{% endif %}</p>
+  <p><b>Carga real:</b> {% if siigo_status.live_payroll_journal_enabled %}🟢 Habilitada{% else %}🔒 Bloqueada por seguridad{% endif %}</p>
+  <p><b>Contabilidad:</b> {% if siigo_status.payroll_accounting_configured %}🟢 Mapa real por grupo cargado{% else %}🟡 Falta mapa contable o comprobante{% endif %}</p>
+</div>
+
+<form method="post" class="panel">
+  <h2>1. Preparar y validar</h2>
+  <label>Fecha del comprobante</label>
+  <input type="date" name="journal_date" value="{{ request.form.get('journal_date','') }}">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+    <button class="btn ghost" name="action" value="preview">Previsualizar comprobante</button>
+    <button class="btn ghost" name="action" value="validate">Validar terceros en Siigo</button>
+  </div>
+
+  {% if preview %}
+  <div class="panel" style="margin-top:16px">
+    <h3>Resumen del comprobante</h3>
+    <p><b>Comprobante:</b> {{preview._summary.document_code}} · <b>Empleados:</b> {{preview._summary.employees}} · <b>Movimientos:</b> {{preview._summary.item_count}}</p><p><b>Grupos:</b> {{preview._summary.groups|join(', ')}}</p>
+    <p><b>Débitos:</b> {{'{:,.2f}'.format(preview._summary.debit)}} · <b>Créditos:</b> {{'{:,.2f}'.format(preview._summary.credit)}} · <b>Diferencia:</b> {{'{:,.2f}'.format(preview._summary.difference)}}</p>
+    <div style="margin-top:18px">
+      <h3>Detalle contable para revisión humana</h3>
+      <p>Este resumen agrupa exactamente los movimientos que se enviarían a Siigo. Revísalo antes de habilitar la carga real.</p>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th>Grupo</th><th>Cuenta</th><th>Concepto</th><th style="text-align:right">Débito</th><th style="text-align:right">Crédito</th></tr></thead>
+          <tbody>
+          {% for line in preview._summary.accounting_lines %}
+            <tr>
+              <td>{{line.group}}</td><td><b>{{line.account}}</b></td><td>{{line.concept}}</td>
+              <td style="text-align:right">{% if line.debit %}{{'{:,.2f}'.format(line.debit)}}{% else %}—{% endif %}</td>
+              <td style="text-align:right">{% if line.credit %}{{'{:,.2f}'.format(line.credit)}}{% else %}—{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+          <tfoot><tr><th colspan="3" style="text-align:right">TOTAL</th><th style="text-align:right">{{'{:,.2f}'.format(preview._summary.debit)}}</th><th style="text-align:right">{{'{:,.2f}'.format(preview._summary.credit)}}</th></tr></tfoot>
+        </table>
+      </div>
+      {% if preview._summary.difference == 0 %}<p>✅ <b>Control:</b> Débitos y créditos están balanceados.</p>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if third_parties %}
+  <div class="panel" style="margin-top:16px">
+    <h3>Validación de empleados / terceros</h3>
+    <p>Encontrados en Siigo: <b>{{third_parties.found|length}}</b> · Faltantes: <b>{{third_parties.missing|length}}</b></p>
+    {% if third_parties.missing %}
+      <p style="color:#8a5a00"><b>No se puede cargar todavía.</b> Estos empleados deben existir como terceros en Siigo:</p>
+      <ul>{% for e in third_parties.missing %}<li>{{e.identification}} · {{e.name}}</li>{% endfor %}</ul>
+      <a class="btn ghost" href="{{url_for('main.empleados')}}">Ir a Empleados</a>
+    {% else %}<p>✅ Todos los empleados fueron encontrados como terceros.</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <hr style="margin:22px 0">
+  <h2>2. Carga real a Siigo</h2>
+  <p>Esta acción crea un <b>comprobante contable</b> mediante la API de Siigo. Requiere nómina aprobada, terceros válidos, cuentas balanceadas y confirmación humana.</p>
+  <label>Responsable que autoriza</label>
+  <input name="reviewer" placeholder="Nombre del responsable">
+  <label style="display:block;margin-top:12px"><input type="checkbox" name="confirmed" value="yes"> Confirmo que revisé la nómina y autorizo su contabilización en Siigo.</label>
+  <button class="btn" style="margin-top:14px" name="action" value="upload">Cargar nómina a Siigo</button>
+</form>
+
+{% if response %}
+<div class="panel"><h2>✅ Comprobante creado</h2><p><b>ID:</b> {{response.id}}</p><p><b>Nombre:</b> {{response.name}}</p><p><b>Fecha:</b> {{response.date}}</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Multy · Nómina Inteligente{% endblock %}</title><link rel="stylesheet" href="{{url_for('static',filename='styles.css')}}"></head>
+<body>
+<header class="topbar"><div class="nav"><a class="brand" href="{{url_for('main.index')}}"><span class="mark">M</span><span><b>MULTY</b><small>Nómina inteligente</small></span></a><button class="navtoggle" type="button" onclick="document.body.classList.toggle('nav-open')">☰</button><nav class="links"><a href="{{url_for('main.index')}}">Inicio</a><a href="{{url_for('main.procesar')}}">Novedades</a><a href="{{url_for('main.empleados')}}">Empleados</a><a href="{{url_for('main.nominas')}}">Nóminas</a><a href="{{url_for('main.integracion_siigo_nomina')}}">Siigo</a><a href="{{url_for('main.nomina_electronica')}}">Nómina electrónica</a><a href="{{url_for('main.auditoria')}}">Auditoría</a></nav><span class="human"><i></i> Revisión humana activa</span></div></header>
+<main class="container">{% with messages=get_flashed_messages() %}{% if messages %}<div class="flashstack">{% for m in messages %}<div class="flash"><b>✓</b><span>{{m}}</span></div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main>
+<footer class="footer"><b>Multy · Nómina Inteligente</b><span>Cálculo controlado · Revisión humana · Integración Siigo</span></footer>
+</body></html>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% block title %}Nómina electrónica · Nómina AI{% endblock %}
+{% block content %}
+<div class="pagehead"><div><span class="eyebrow">POST-APROBACIÓN</span><h1>Nómina electrónica</h1><p>Revisión <b>{{review_id}}</b> · V{{version}} · Solo disponible después de aprobación humana.</p></div><span class="badge">HUMAN-IN-THE-LOOP</span></div>
+
+<div class="panel"><h2>1. Preparar y validar</h2>
+<p>El sistema transforma la nómina aprobada a un <b>contrato interno normalizado</b>, valida empresa, periodo, empleados, identificaciones y totales, y genera JSON técnico + Excel de control para revisión humana. El CSV queda como respaldo técnico.</p>
+<div class="company-summary"><p><b>Empresa:</b> {{ company_name or "GRUPO MULTY SAS" }}</p><p><b>NIT:</b> {% if company_nit %}{{ company_nit }} <span class="badge">AUTOMÁTICO</span>{% else %}<span class="badge">PENDIENTE CONFIGURACIÓN</span>{% endif %}</p></div>
+<form method="post"><input type="hidden" name="action" value="prepare">
+<label>Inicio periodo</label><input type="date" name="period_start" required>
+<label>Fin periodo</label><input type="date" name="period_end" required>
+<button class="btn" type="submit">Validar y preparar nómina electrónica</button></form>
+
+{% if package_validation %}
+<hr><h3>Resultado de validación</h3>
+<p><b>Estado:</b> {% if package_validation.is_valid %}✓ LISTA PARA ADAPTADOR{% else %}⚠ REQUIERE CORRECCIÓN{% endif %}</p>
+<p><b>Empleados:</b> {{package_validation.employee_count}} · <b>Devengados:</b> {{ '{:,.2f}'.format(package_validation.totals.earnings) }} · <b>Deducciones:</b> {{ '{:,.2f}'.format(package_validation.totals.deductions) }} · <b>Neto:</b> {{ '{:,.2f}'.format(package_validation.totals.net) }}</p>
+{% if package_validation.errors %}<p><b>Errores:</b></p><ul>{% for e in package_validation.errors %}<li>{{e}}</li>{% endfor %}</ul>{% endif %}
+{% if package_validation.warnings %}<p><b>Advertencias:</b></p><ul>{% for e in package_validation.warnings %}<li>{{e}}</li>{% endfor %}</ul>{% endif %}
+{% endif %}
+
+{% if generated_file %}<p>✓ JSON: <a href="{{url_for('main.descargar_nomina_electronica', filename=generated_file)}}">{{generated_file}}</a></p>{% endif %}
+{% if generated_control_xlsx %}<p>✓ <b>Control Excel:</b> <a href="{{url_for('main.descargar_nomina_electronica', filename=generated_control_xlsx)}}">{{generated_control_xlsx}}</a> <span class="badge">RECOMENDADO</span></p>{% endif %}
+{% if generated_summary_file %}<p>✓ CSV técnico: <a href="{{url_for('main.descargar_nomina_electronica', filename=generated_summary_file)}}">{{generated_summary_file}}</a></p>{% endif %}
+</div>
+
+<div class="panel"><h2>2. Integración Siigo</h2>
+{% if siigo_readiness.environment_credentials_configured %}
+<p><b>✓ Siigo configurado desde <code>.env</code>.</b> Las credenciales no se solicitan en la interfaz.</p>
+<form method="post"><input type="hidden" name="action" value="test_siigo"><button class="btn yellow" type="submit">Probar conexión Siigo</button></form>
+<a class="btn ghost" href="{{url_for('main.siigo_conexion')}}">Ver estado de integración</a>
+{% else %}
+<p><b>Faltan credenciales de Siigo en <code>.env</code>.</b> Configura SIIGO_USERNAME, SIIGO_ACCESS_KEY y SIIGO_PARTNER_ID y reinicia la aplicación.</p>
+<a class="btn yellow" href="{{url_for('main.siigo_conexion')}}">Ver configuración requerida</a>
+{% endif %}
+{% if siigo_status %}<p>{{siigo_status}}</p>{% endif %}
+</div>
+
+<div class="panel"><h2>3. Nómina Electrónica</h2>
+<p><b>Módulo interno listo:</b> la nómina aprobada se normaliza, valida, audita y queda preparada para transmisión mediante un adaptador oficial.</p>
+<p><b>Seguridad:</b> este proyecto no usa facturación electrónica ni endpoints de facturas. Tampoco inventa un endpoint de nómina. La transmisión Siigo/DIAN se habilita únicamente cuando exista el contrato oficial/documentado de Nómina Electrónica del proveedor.</p>
+</div>
+{% endblock %}
